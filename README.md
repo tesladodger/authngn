@@ -2,6 +2,10 @@
 
 Stupidly simple authorization engine.
 
+```
+go get -u github.com/tesladodger/authngn
+```
+
 ## Usage
 
 Register the rules:
