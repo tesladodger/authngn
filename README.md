@@ -21,5 +21,5 @@ ngn.Register(User{}, "read,write,delete", Resource{}, func(ent, res any) bool {
 
 Assert authorization:
 ```
-ok, err := ngn.Authorize(user, "read", resource)
+ok := ngn.Authorize(user, "read", resource)
 ```
