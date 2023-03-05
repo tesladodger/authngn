@@ -10,6 +10,7 @@ import (
 // true if the action should be authorized.
 type AuthFunc func(ent, res any) bool
 
+// Authngn contains the methods to register and evaluate authorization rules.
 type Authngn struct {
 	rules map[string]AuthFunc
 }
