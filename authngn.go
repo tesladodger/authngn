@@ -1,7 +1,6 @@
 package authngn
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 )
@@ -10,6 +9,7 @@ import (
 // true if the action should be authorized.
 type AuthFunc func(ent, res any) bool
 
+// Authngn contains the methods to register and evaluate authorization rules.
 type Authngn struct {
 	rules map[string]AuthFunc
 }
@@ -22,6 +22,9 @@ func New() *Authngn {
 // Register adds a new rule to the engine.
 // A previously registered rule matching the same criteria will be replaced.
 //
+// Only the underlying types of ent and res are used: registering User{} is
+// equivalent to registering &User{}.
+//
 // The action can be a set of actions, separated by a comma:
 // `read,write,delete`
 func (n *Authngn) Register(ent any, action string, res any, f AuthFunc) {
@@ -32,15 +35,21 @@ func (n *Authngn) Register(ent any, action string, res any, f AuthFunc) {
 }
 
 // Authorize evaluates the rule for the given parameters.
-// It returns an error if there is no such rule.
-func (n *Authngn) Authorize(ent any, action string, res any) (bool, error) {
+// It returns false if there is no such rule.
+func (n *Authngn) Authorize(ent any, action string, res any) bool {
 	auth, ok := n.rules[ruleId(ent, action, res)]
 	if !ok {
-		return false,
-			fmt.Errorf("no rule found for %v", ruleId(ent, action, res))
+		return false
 	}
 
-	return auth(ent, res), nil
+	return auth(ent, res)
+}
+
+// Contains returns true if a rule that matches the given criteria has been
+// registered.
+func (n *Authngn) Contains(ent any, action string, res any) bool {
+	_, ok := n.rules[ruleId(ent, action, res)]
+	return ok
 }
 
 // ruleId returns a unique identifier for the action and types of ent and res.

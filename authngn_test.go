@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type testtype struct {
@@ -38,13 +39,39 @@ func TestAuthorize(t *testing.T) {
 		{"aoeusnt", "write", testtype{owner: "aoeusnth"}, false},
 		{"aoeusnth", "delete", testtype{owner: "aoeusnth"}, true},
 		{"aoeusnt", "delete", testtype{owner: "aoeusnth"}, false},
+		{123, "write", "aoeusnth", false},
+		{testtype{id: id}, "create", testtype{owner: id}, false},
 	}
 
 	for i, tc := range testcases {
-		res, err := ngn.Authorize(tc.ent, tc.action, tc.res)
-		assert.NoError(t, err, "failed on test case %d", i)
-		assert.Equal(t, tc.result, res, "failed on test case %d", i)
+		assert.Equal(t,
+			tc.result,
+			ngn.Authorize(tc.ent, tc.action, tc.res),
+			"failed on test case %d", i)
 	}
+}
+
+func TestContains(t *testing.T) {
+	ngn := New()
+	require.False(t, ngn.Contains(testtype{}, "read", ""))
+	require.False(t, ngn.Contains(testtype{}, "write", ""))
+	require.False(t, ngn.Contains(testtype{}, "delete", ""))
+
+	ngn.Register(&testtype{}, "delete", "", func(_, _ any) bool {
+		return true
+	})
+
+	require.False(t, ngn.Contains(testtype{}, "read", ""))
+	require.False(t, ngn.Contains(testtype{}, "write", ""))
+	require.True(t, ngn.Contains(testtype{}, "delete", ""))
+
+	ngn.Register(&testtype{}, "read,write", testtype{}, func(_, _ any) bool {
+		return true
+	})
+
+	require.True(t, ngn.Contains(testtype{}, "read", testtype{}))
+	require.True(t, ngn.Contains(testtype{}, "write", testtype{}))
+	require.False(t, ngn.Contains(testtype{}, "delete", testtype{}))
 }
 
 func TestKey(t *testing.T) {
