@@ -46,6 +46,13 @@ func (n *Authngn) Authorize(ent any, action string, res any) (bool, error) {
 	return auth(ent, res), nil
 }
 
+// Contains returns true if a rule that matches the given criteria has been
+// registered.
+func (n *Authngn) Contains(ent any, action string, res any) bool {
+	_, ok := n.rules[ruleId(ent, action, res)]
+	return ok
+}
+
 // ruleId returns a unique identifier for the action and types of ent and res.
 func ruleId(ent any, action string, res any) string {
 	return strings.Join([]string{
