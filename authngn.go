@@ -1,7 +1,6 @@
 package authngn
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 )
@@ -36,15 +35,14 @@ func (n *Authngn) Register(ent any, action string, res any, f AuthFunc) {
 }
 
 // Authorize evaluates the rule for the given parameters.
-// It returns an error if there is no such rule.
-func (n *Authngn) Authorize(ent any, action string, res any) (bool, error) {
+// It returns false if there is no such rule.
+func (n *Authngn) Authorize(ent any, action string, res any) bool {
 	auth, ok := n.rules[ruleId(ent, action, res)]
 	if !ok {
-		return false,
-			fmt.Errorf("no rule found for %v", ruleId(ent, action, res))
+		return false
 	}
 
-	return auth(ent, res), nil
+	return auth(ent, res)
 }
 
 // Contains returns true if a rule that matches the given criteria has been

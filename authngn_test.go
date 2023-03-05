@@ -39,12 +39,15 @@ func TestAuthorize(t *testing.T) {
 		{"aoeusnt", "write", testtype{owner: "aoeusnth"}, false},
 		{"aoeusnth", "delete", testtype{owner: "aoeusnth"}, true},
 		{"aoeusnt", "delete", testtype{owner: "aoeusnth"}, false},
+		{123, "write", "aoeusnth", false},
+		{testtype{id: id}, "create", testtype{owner: id}, false},
 	}
 
 	for i, tc := range testcases {
-		res, err := ngn.Authorize(tc.ent, tc.action, tc.res)
-		assert.NoError(t, err, "failed on test case %d", i)
-		assert.Equal(t, tc.result, res, "failed on test case %d", i)
+		assert.Equal(t,
+			tc.result,
+			ngn.Authorize(tc.ent, tc.action, tc.res),
+			"failed on test case %d", i)
 	}
 }
 
