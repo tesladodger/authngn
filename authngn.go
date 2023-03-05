@@ -22,6 +22,9 @@ func New() *Authngn {
 // Register adds a new rule to the engine.
 // A previously registered rule matching the same criteria will be replaced.
 //
+// Only the underlying types of ent and res are used: registering User{} is
+// equivalent to registering &User{}.
+//
 // The action can be a set of actions, separated by a comma:
 // `read,write,delete`
 func (n *Authngn) Register(ent any, action string, res any, f AuthFunc) {
