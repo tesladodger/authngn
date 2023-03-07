@@ -36,7 +36,20 @@ func (n *Authngn) Register(ent any, action string, res any, f AuthFunc) {
 
 // Authorize evaluates the rule for the given parameters.
 // It returns false if there is no such rule.
+//
+// The action can be a set of actions, separated by a comma:
+// `read,write,delete`. It returns true iff all actions pass authorization.
 func (n *Authngn) Authorize(ent any, action string, res any) bool {
+	actions := strings.Split(action, ",")
+	for _, act := range actions {
+		if !n.authorize(ent, act, res) {
+			return false
+		}
+	}
+	return true
+}
+
+func (n *Authngn) authorize(ent any, action string, res any) bool {
 	auth, ok := n.rules[ruleId(ent, action, res)]
 	if !ok {
 		return false
