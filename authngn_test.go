@@ -80,6 +80,30 @@ func TestContains(t *testing.T) {
 	require.False(t, ngn.Contains(testtype{}, "delete", testtype{}))
 }
 
+func TestDelete(t *testing.T) {
+	ngn := New()
+
+	ngn.Register(testtype{}, "execute", testtype{}, func(_, _ any) bool {
+		return true
+	})
+	require.True(t, ngn.Authorize(testtype{}, "execute", testtype{}))
+
+	ngn.Delete(testtype{}, "execute", testtype{})
+	require.False(t, ngn.Authorize(testtype{}, "execute", testtype{}))
+
+	ngn.Register(testtype{}, "read,write,delete", testtype{}, func(_, _ any) bool {
+		return true
+	})
+	require.True(t, ngn.Authorize(testtype{}, "read", testtype{}))
+	require.True(t, ngn.Authorize(testtype{}, "write", testtype{}))
+	require.True(t, ngn.Authorize(testtype{}, "delete", testtype{}))
+
+	ngn.Delete(testtype{}, "read,write", testtype{})
+	require.False(t, ngn.Authorize(testtype{}, "read", testtype{}))
+	require.False(t, ngn.Authorize(testtype{}, "write", testtype{}))
+	require.True(t, ngn.Authorize(testtype{}, "delete", testtype{}))
+}
+
 func TestKey(t *testing.T) {
 	testcases := []struct {
 		val any
