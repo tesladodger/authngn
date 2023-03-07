@@ -31,6 +31,7 @@ func TestAuthorize(t *testing.T) {
 		res    any
 		result bool
 	}{
+		// Test single actions
 		{testtype{id: id}, "read", testtype{owner: id}, true},
 		{testtype{id: id}, "read", testtype{owner: "not-id"}, false},
 		{"aoeusnth", "read", testtype{owner: "aoeusnth"}, true},
@@ -41,6 +42,11 @@ func TestAuthorize(t *testing.T) {
 		{"aoeusnt", "delete", testtype{owner: "aoeusnth"}, false},
 		{123, "write", "aoeusnth", false},
 		{testtype{id: id}, "create", testtype{owner: id}, false},
+
+		// Test set of actions
+		{"aoeusnth", "read,write,delete", testtype{owner: "aoeusnth"}, true},
+		{"aoeusnt", "read,write,delete", testtype{owner: "aoeusnth"}, false},
+		{"aoeusnth", "read,write,execute", testtype{owner: "aoeusnth"}, false},
 	}
 
 	for i, tc := range testcases {
