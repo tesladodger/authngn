@@ -58,6 +58,21 @@ func (n *Authngn) authorize(ent any, action string, res any) bool {
 	return auth(ent, res)
 }
 
+// Delete removes the rule from the engine.
+//
+// The action can be a set of actions, separated by a comma:
+// `read,write,delete`
+func (n *Authngn) Delete(ent any, action string, res any) {
+	actions := strings.Split(action, ",")
+	for _, act := range actions {
+		n.delete(ent, act, res)
+	}
+}
+
+func (n *Authngn) delete(ent any, action string, res any) {
+	delete(n.rules, ruleId(ent, action, res))
+}
+
 // Contains returns true if a rule that matches the given criteria has been
 // registered.
 func (n *Authngn) Contains(ent any, action string, res any) bool {
@@ -65,7 +80,7 @@ func (n *Authngn) Contains(ent any, action string, res any) bool {
 	return ok
 }
 
-// ruleId returns a unique identifier for the action and types of ent and res.
+// ruleId returns an identifier for the action and types of ent and res.
 func ruleId(ent any, action string, res any) string {
 	return strings.Join([]string{
 		key(ent),
@@ -74,8 +89,7 @@ func ruleId(ent any, action string, res any) string {
 	}, "-")
 }
 
-// key returns an identification string for the underlying type of val,
-// ignoring pointers.
+// key returns an identifier for the underlying type of val, ignoring pointers.
 func key(val any) string {
 	return strings.Replace(reflect.TypeOf(val).String(), "*", "", -1)
 }
